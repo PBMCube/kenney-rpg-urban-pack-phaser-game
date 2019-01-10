@@ -1,11 +1,11 @@
 var player;
 var idle, right, left, up, down;
 var enemies;
-var throwBackArray = [];
 var tb = 0;
 var m, myGrid;
 var moveTween;
-var layer;
+var layer = [];
+var ismoving;
 
 bootState = {
   preload: function() {
@@ -76,17 +76,16 @@ playState = {
     this.playerMap = {};
     var testKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
 
-    game.world.setBounds(0, 0, 1024, 768);
+    game.world.setBounds(0, 0, 40*16, 40*16);
 
     var map = game.add.tilemap('map');
     map.addTilesetImage('tilemap', 'tileset'); // tilesheet is the key of the tileset in map's JSON file
 
     for(var i = 0; i < map.layers.length; i++) {
-        layer = map.createLayer(i);
+        layer[i] = map.createLayer(i);
+        layer[i].inputEnabled = true; // Allows clicking on the map ; it's enough to do it on the last layer
+        layer[i].events.onInputDown.add(this.getCoordinates, this);
     };
-
-    layer.inputEnabled = true; // Allows clicking on the map ; it's enough to do it on the last layer
-    layer.events.onInputUp.add(this.getCoordinates, this);
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -100,9 +99,9 @@ playState = {
     }
 
     easystar.setGrid(myGrid);
-    easystar.setAcceptableTiles([8,9,10,35,36,37,62,63,64,434]);
+    easystar.setAcceptableTiles([28,8,9,10,35,36,37,62,63,64,434,441,468]);
 
-    this.addPlayer(8*16, 4*16);
+    this.addPlayer(14*16, 12*16);
 
   },
   update: function() {
@@ -114,7 +113,6 @@ playState = {
     //game.add.tween(tBack).to( { alpha: 1 }, 2000, Phaser.Easing.Linear.None, true, 0, 1000, true);
     moveTween.stop();
     player.kill();
-    //this.addPlayer(throwBackArray[tb-1][0].x*32,throwBackArray[tb-1][0].y*32);
   },
 
   collisionHome : function(){
@@ -135,7 +133,7 @@ playState = {
     left = player.animations.add('left', [23, 50, 77], 10, true);
     up = player.animations.add('up', [24, 51, 78], 10, true);
 
-    player.ismoving = false;
+    ismoving = false;
 
     game.camera.follow(player);
   },
@@ -151,14 +149,12 @@ playState = {
     var i = 0;
     function moveObject(object, p, s){
       var StepX = p[i].x || false, StepY = p[i].y || false;
-      moveTween = game.add.tween( object ).to({ x: StepX*32, y: StepY*32}, 150);
+      moveTween = game.add.tween( object ).to({ x: StepX*16, y: StepY*16}, 150);
       moveTween.start();
       dx = p[i].x;
       moveTween.onComplete.add(function(){
         i++;
         if(i < p.length){
-          console.log(p[i]);
-          console.log(p[i+1]);
           if (p[i].x > dx) {
             player.play('right');
           };
@@ -175,26 +171,25 @@ playState = {
       })
     }
 
-    easystar.findPath(Math.floor(player.x/32), Math.floor(player.y/32), Math.floor(x/32), Math.floor(y/32), function( path ) {
+    easystar.findPath(Math.floor(player.x/16), Math.floor(player.y/16), Math.floor(x/16), Math.floor(y/16), function( path ) {
       if (path === null) {
         console.log("Path was not found.");
     	} else {
         console.log("Path was found.");
-        throwBackArray.push(path);
-        tb = tb + 1;
-        if (player.ismoving == false){
-          console.log("is not moving");
-          player.ismoving = true;
+        if (ismoving == false){
+          console.log(ismoving);
+          ismoving = true;
           moveObject(player, path);
         } else {
-          console.log("is moving");
-          player.ismoving = false;
-          moveTween.stop();
+          console.log(ismoving);
+          ismoving = false;
+          //moveTween.stop();
           player.play('idle');
         }
     	}
     });
     easystar.calculate();
+    ismoving = false;
   }
 },
 winState = {
