@@ -5,7 +5,7 @@ var tb = 0;
 var m, myGrid;
 var moveTween;
 var layer = [];
-var ismoving;
+var isMoving;
 
 bootState = {
   preload: function() {
@@ -133,7 +133,7 @@ playState = {
     left = player.animations.add('left', [23, 50, 77], 10, true);
     up = player.animations.add('up', [24, 51, 78], 10, true);
 
-    ismoving = false;
+    isMoving = false;
 
     game.camera.follow(player);
   },
@@ -154,6 +154,7 @@ playState = {
       dx = p[i].x;
       moveTween.onComplete.add(function(){
         i++;
+        isMoving = true;
         if(i < p.length){
           if (p[i].x > dx) {
             player.play('right');
@@ -166,30 +167,29 @@ playState = {
           };
           moveObject(object, p);
         }else{
+          console.log("idle");
+          isMoving = false;
           player.play('idle');
         };
-      })
+      });
     }
-
     easystar.findPath(Math.floor(player.x/16), Math.floor(player.y/16), Math.floor(x/16), Math.floor(y/16), function( path ) {
       if (path === null) {
         console.log("Path was not found.");
     	} else {
         console.log("Path was found.");
-        if (ismoving == false){
-          console.log(ismoving);
-          ismoving = true;
+        if (isMoving == false){
+          console.log(isMoving);
+          //isMoving = true;
           moveObject(player, path);
         } else {
-          console.log(ismoving);
-          ismoving = false;
-          //moveTween.stop();
+          console.log(isMoving);
+          isMoving = false;
           player.play('idle');
         }
     	}
     });
     easystar.calculate();
-    ismoving = false;
   }
 },
 winState = {
