@@ -18,6 +18,12 @@ bootState = {
   }
 },
 loadState = {
+  init: function(){
+    if (!game.device.desktop) {
+      game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+      //screen.orientation.lock('landscape');//on itch it's diffrent
+    }
+  },
   preload: function() {
     var a = game.add.image(game.world.centerX, 150, "loader");
     a.anchor.setTo(.5, .5);
