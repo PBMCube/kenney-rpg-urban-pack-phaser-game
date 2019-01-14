@@ -1,4 +1,4 @@
-var player;
+var player, car;
 var idle, right, left, up, down;
 var enemies;
 var tb = 0;
@@ -38,10 +38,13 @@ loadState = {
 
     game.load.tilemap('map', 'assets/map/map.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.spritesheet('tileset', 'assets/Tilemap/tilemap.png', 16, 16);
+    game.load.spritesheet('tileset2', 'assets/Tilemap/galletcity_tiles.png', 16, 16);
     game.load.spritesheet('sprite', 'assets/Tilemap/tilemap_packed.png', 16, 16);
+    game.load.spritesheet('car', 'assets/Tilemap/tilemap_packed.png', 32, 32);
 
     game.load.tilemap('map', 'assets/map/map.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.spritesheet('tileset', 'assets/map/tilesheet.png', 32, 32);
+    //game.load.spritesheet('tileset', 'assets/map/tilesheet.png', 32, 32);
+
 
   },
   create: function() {
@@ -76,10 +79,11 @@ playState = {
     this.playerMap = {};
     var testKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
 
-    game.world.setBounds(0, 0, 40*16, 40*16);
+    game.world.setBounds(0, 0, 160*16, 160*16);
 
     var map = game.add.tilemap('map');
     map.addTilesetImage('tilemap', 'tileset'); // tilesheet is the key of the tileset in map's JSON file
+    map.addTilesetImage('galletcity_tiles', 'tileset2');
 
     for(var i = 0; i < map.layers.length; i++) {
         layer[i] = map.createLayer(i);
@@ -91,9 +95,9 @@ playState = {
 
     m = game.cache.getTilemapData('map').data.layers[0].data;
     myGrid = new Array();
-    for(i=0; i<39; i++){
+    for(i=0; i<159; i++){
       myGrid[i] = new Array();
-      for(j=0; j<39; j++){
+      for(j=0; j<159; j++){
         myGrid[i].push(m[i*j]);
       }
     }
@@ -102,6 +106,7 @@ playState = {
     easystar.setAcceptableTiles([28,8,9,10,35,36,37,62,63,64,434,441,468]);
 
     this.addPlayer(14*16, 12*16);
+    this.addCar(21*16, 14*16);
 
   },
   update: function() {
@@ -138,11 +143,10 @@ playState = {
     game.camera.follow(player);
   },
 
-  addEnemies : function(x, y){
-    enemy = game.add.sprite(x, y, 'enemy', 0);
-    enemy.smoothed = false;
-    game.physics.arcade.enable(enemy);
-    enemies.add(enemy);
+  addCar : function(x, y){
+    car = game.add.sprite(x, y, 'car', 98);
+    car.smoothed = false;
+    game.physics.arcade.enable(car);
   },
 
   movePlayer : function(x, y){
